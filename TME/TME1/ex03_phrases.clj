@@ -25,6 +25,8 @@
 (repeatedly 10 gen-adj)
 (repeatedly 10 gen-nom)
 
+(gen-adj)
+
 ;; ## Question 2 : générateur de proposition nominale
 
 (defn gen-prop-nominale []
@@ -33,6 +35,13 @@
 (gen-prop-nominale)
 
 ;; ## Question 3 : générateur de proposition verbale
+
+(defn gen-verb[]
+  (rand-nth ["parler" "danser" "chanter" "jouer"]))
+(gen-verb)
+
+(defn gen-propo-verbale[]
+  (str (gen-verb) " " (gen-prop-nominal)))
 
 ;; ## Question 4 : générateur de phrases
 
