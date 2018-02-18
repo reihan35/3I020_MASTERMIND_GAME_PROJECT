@@ -39,7 +39,7 @@
 
   (println "How many tries do you want ?")
   (println "1 : 12 (hmmm still a newbie ?)")
-  (println "2 : 10 (A good start hmm")
+  (println "2 : 10 (A good start hmm)")
   (println "3 : 8 (Oh you are very confident )")
   (println "4 : 6 (Wow , You really like challenges !)")
 
@@ -57,10 +57,10 @@
               (println "2:I need a break, so no thanks")
               (restart))
             (do (println "Too bad ! let's retry") (recur (+ m 1)))) ;;refait une tentative si mauvais vecteur tapé
-          (println "Too bad, you used up all your tries !"))))))
+          (do (println "Too bad, you used up all your tries ! Try again ? ") (println "1 : Yes, do not want to give up !") (println "2 : No, need a break") (restart)))))))
 
 
-
+;;Fonction permettant de savoir combien de tentatives le joueur souhaite
 (defn valeur-tenta [n]
   (cond
     (= (compare n "1") 0) 12
@@ -68,6 +68,7 @@
     (= (compare n "3") 0) 8
     (= (compare n "4") 0) 6
     :else (do (println "Please enter an appropriate number..") (valeur-tenta (read-line)))))
+
 
 ;;fonction qui permet de traiter la relance du jeu
 (defn restart []
@@ -88,7 +89,7 @@
           		(if (some #(= (compare (keyword lire) %) 0) pionsC) ;;TODO on ne peut pas compter le nombre d'argumets, il faudra donc vérifier l'argument est dans pionsC
           			;;If there is only one input, can ask the next argument
           			(recur (inc tentative) (conj res lire))
-          			(do (println "Wrong arguments ! Please enter only one argument with the correct format : example red") (recur tentative res))))
+          			(do (println "Wrong arguments ! Please enter only one argument with the correct format : example red (do not add a space after)") (recur tentative res))))
           	(do (println res) (convertirKey res)))))
 
 
@@ -103,13 +104,14 @@
 			res)))
 
 
-
+;;Cette fonction retournve vrai si le joueur a deviné la bonne combinaison, sinon faux
 (defn verifColor [codePlayer codesecret]
-  (let [resp (filtre-indications codesecret codePlayer (indications codesecret codePlayer))]
-    (println resp)
-    (if (some #(not= (compare :good %) 0) resp)
-      false
-      true)))
+  (if (= (count codePlayer) (count codesecret))
+    (let [resp (filtre-indications codesecret codePlayer (indications codesecret codePlayer))]
+      (println resp)
+      (if (some #(not= (compare :good %) 0) resp)
+        false
+        true))))
 
 
 

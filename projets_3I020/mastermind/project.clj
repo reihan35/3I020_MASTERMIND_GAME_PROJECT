@@ -6,4 +6,10 @@
   :dependencies [[org.clojure/clojure "1.8.0"]]
   :main ^:skip-aot mastermind.core
   :target-path "target/%s"
-  :profiles {:uberjar {:aot :all}})
+  :profiles {:uberjar {:aot :all}
+  			:dev {:dependencies [[midje "1.8.3" :exclusions [org.clojure/clojure]]
+                                  [org.clojure/tools.nrepl "0.2.12"]]
+                   :plugins [[lein-midje "3.2.1"]]}
+             :midje {}})
+
+

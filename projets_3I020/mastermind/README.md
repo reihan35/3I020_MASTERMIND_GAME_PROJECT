@@ -27,6 +27,15 @@ Then enter this command : lein run.
 Finally enjoy the game !
 
 
+
+WARNING USE OF MIDJE
+We are very sorry, but we are still trying to understand how to use midje.
+If you want to run a test, please use the command test (lein test).
+It is said that test and midje are linked : 
+https://github.com/marick/Midje/wiki/Running-midje
+
+We will try to make the command midje efficient for the second project.
+
 ## Options
 
 Does not have any options.
