@@ -1,6 +1,6 @@
 # mastermind
 
-A small project from 3I020. First game named mastermind (was very famous). We tried to reproduce the same game as explain here :
+A small project for 3I020 (Declarative programming UE) sort of reproduce of the very famous game MasterMind as explained here :
 https://en.wikipedia.org/wiki/Mastermind_(board_game)
 
 ## Installation
@@ -12,7 +12,7 @@ http://project.com/3I020 (Doesn't work though)
 Use lein if you want to launch the project.
 There are two ways to launch it.
 
-First way :
+1)
 In a terminal, enter the repository of the game (~/projets_3I020/mastermind).
 Then use this command : lein repl.
 Afterwards, this line will appear on the terminal :
@@ -21,7 +21,7 @@ To launch the game, enter (-main) after the line above.
 You should have this : mastermind.core=> (-main).
 Finally enjoy the game !
 
-Second way :
+2)
 In a terminal, enter the repository of the file core.clj (~/projets/mastermind/src/mastermind).
 Then enter this command : lein run.
 Finally enjoy the game !
@@ -88,8 +88,8 @@ Too bad, it was fun ! See you later !
 
 ### Bugs
 
-Still does not have any bugs ! 
-But if you have spotted a problem, please signal us :) !
+We have not found any bugs yet ! 
+But if you have spotted any problems, please signal us :) !
 
 ### Any Other Sections
 ### That You Think

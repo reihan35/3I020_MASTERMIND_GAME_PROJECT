@@ -39,9 +39,9 @@
 
   (println "How many tries do you want ?")
   (println "1 : 12 (hmmm still a newbie ?)")
-  (println "2 : 10 (A good debute hmm")
-  (println "3 : 8 (Oh you are very confident)")
-  (println "4 : 6 (Wouah, You really like challenge !)")
+  (println "2 : 10 (A good start hmm")
+  (println "3 : 8 (Oh you are very confident )")
+  (println "4 : 6 (Wow , You really like challenges !)")
 
   ;;Lit le nombre de tentative voulu
   (let [tentative (valeur-tenta (read-line))]
