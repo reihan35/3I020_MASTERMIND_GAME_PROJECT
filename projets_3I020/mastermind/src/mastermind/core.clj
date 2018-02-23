@@ -1,7 +1,7 @@
 (ns mastermind.core
   (:gen-class))
 
-(declare lancer-jeu)
+(declare vs-device)
 (declare code-secret)
 (declare comparer)
 (declare indications)
@@ -15,25 +15,230 @@
 (declare verifColor)
 (declare restart)
 (declare valeur-tenta)
+(declare lancer-jeu-choix)
+(declare vs-player)
+(declare lireCode)
+(declare rightColor)
+(declare deviner)
+(declare buildCode)
+(declare convertirString)
+(declare bad)
+(declare good)
+(declare comparerIndic)
+(declare tabColor)
+(declare removeColor)
 
 (def pionsC [:red :blue :green :yellow :black :white])
+(def ind [:good :bad :color])
 
 
 
 
 (defn -main [& args]
-  (println "Welcome to the MatserMind ! Do you want to start a new game ?")
+  (println "Welcome to the MatserMind game ! Do you want to start a new game ?")
+  ;;(println (first (clojure.string/split (read-line) #" "))))
   (println "1 : yes,why not?")
   (println "2 : WTH! not at all")
+  ;;(println (bad [:red :white :red :black] [:bad :bad :bad :bad] [:red :blue :green :yellow :black :white])))
   (let [response (read-line)] ;;read-line récupère un string sur la ligne de commande
     (if (= (compare response "1") 0)
       ;;On lance le jeu si la reponse est 1
-      (lancer-jeu)
+      (lancer-jeu-choix)
       (println "Too bad ! see you later ..."))))
 
 
+
+
+(defn lancer-jeu-choix []
+	(println "Perfect !")
+	(println "Shall I defeat you ?")
+	(println "1 : Yes, try it if you dare")
+	(println "2 : No, I want to defeat you !")
+	(println "3 : After a thought, I don't want to play")
+	(let [choix (read-line)]
+		(cond 
+			(= (compare choix "1") 0) (vs-player)
+			(= (compare choix "2") 0) (vs-device)
+			:else 
+			(println "Soo sad, see you late !"))))
+
+;;****************************************************************************************
+
+
+
+
+(defn vs-player []
+	(println "Nice, let's begin the game !")
+	(println "So, let's start by entering you code, please choose 4 colors from red,blue,green,yellow,black and white")
+	(let [codeSecret (convertirKey (lireCode))] ;;Conversion en clé du code secret lu et qui est correct (vérifier par le code rightColor)
+
+		;;On initialise le nombre d'essais donné par le joueur 
+		(println "How many tries do you give me ?")
+		(println "1 : 12")
+		(println "2 : 10")
+		(println "3 : 8")
+		(println "4 : 6")
+	   	(loop [tentative (valeur-tenta (read-line))
+	   		tp pionsC
+	   		indic []
+	   		code []]
+			(if (> tentative 0)
+				(do
+					;;On construit le code avec tp qui contient les couleurs que le device peut choisir
+					(let [codeDevice (buildCode (count codeSecret) code indic tp)]
+						(println "Is this the good answer ?")
+						(println "Yours : " codeSecret)
+						(println "Mine : " codeDevice)
+						(let [indiquer (comparerIndic (convertirKey (clojure.string/split (read-line) #" ")) (filtre-indications codeSecret codeDevice (indications codeSecret codeDevice)))] 
+							;;compIndic vérifie si l'indication donnée par le joueur correspond à la vraie indication ou non
+							;;Puis la fonction appelle la fonction good qui va permettre de savoir si l'ordinateur à gagner la partie ou non 
+							(if (good indiquer)
+								;;Le device a gagné
+								(println "Yes ! I did it, it was fun, thanks a lot !")
+								;;Sinon il refait son code à partir des choix qu'il peut prendre 
+								(do (println "Oh too bad, let's retry !")
+									(println "essaie")
+									(println indiquer)
+									(recur (inc tentative) (bad codeDevice indiquer tp) indiquer codeDevice))))))
+				(println "Oh, I don't have any tries *sad")))))
+			
+
+
+;;Cette fonction permet de retirer les couleurs qui ne peuvent pas entrer dans le code Secret 
+(defn bad [cS indic tp]
+	(loop [cpt 0
+		tpR tp]
+		(if (< cpt (count cS))
+			(if (= (compare (get indic cpt) :bad) 0)
+				;;Si ça correspond a un bad, on peut le retirer de la liste
+				;;Laisse passer que les mots clés qui vérifie le filtre
+				(recur (inc cpt) (filter #(not= (get cS cpt) %) tpR))
+				;;Sinon je ne fais rien d'autre
+				(recur (inc cpt) tpR))
+			tpR)))
+
+
+
+
+;;Cette fonction permet de comparer l'indication donné par le joueur et celui trouvé par l'ordinateur
+;;Pour éviter les triches 
+;;v1 correspond aux indications tapées par le joueur
+(defn comparerIndic [v1 v2]
+	;;On compare si les deux vecteurs ont la même taille, si ils n'ont pas la même taille, cela signifie que le joueur à mal entré ses indications
+	(if (= (count v1) (count v2))
+		;;sinon on compare si c'est les même
+		(loop [cpt 0
+			v v1]
+			;;Si on est pas arrivé au bout du vecteur 
+			(if (< cpt (count v1))
+				(if (= (compare (get v cpt) (get v2 cpt)) 0)
+					;;si ce sont les mêmes valeurs, on passe à la valeur suivante
+					(recur (inc cpt) v)
+					(do (println "Be careful, you did a mistake, please enter again")
+						(recur 0 (convertirKey (clojure.string/split (read-line) #" ")))))
+				v))
+		(do (println "Warning, there are lesser indications than the Secret code")
+			(comparerIndic (convertirKey (clojure.string/split (read-line) #" ")) v2))))
+
+
+
+;;Cette fonction permet d'indiquer si le vecteur d'indication contient que des good ou non 
+(defn good [v]
+	(loop [v v]
+		(if (seq v)
+			(if (= (compare (first v) :good) 0)
+				(recur (rest v))
+				false)
+			true)))
+
+
+
+
+
+
+;;Cette fonction permet de lire en input le code tapé par l'utilisateur, on vérifie si le code est correct ou non
+(defn lireCode []
+		(let [codeSecret (clojure.string/split (read-line) #" ")] 
+			(if (not= (count codeSecret) 4)
+				(do (println "Please enter the right number of arguments, there are 4 tokens in a Secret Code") (lireCode))
+				(if (rightColor codeSecret)
+					codeSecret
+					(lireCode)))))
+
+;;Cette fonction permet de vérifier si les couleurs contenues dans le codeSecret appartiennent au vecteur de couleurs pionsC
+(defn rightColor [v]
+	(loop [i 0]
+		(if (< i (count v))
+			(if (some #(= (compare (keyword (get v i)) %) 0) pionsC)
+				(recur (inc i))
+				(do (println "You did a mistake, please be careful with the color name") false))
+			true)))
+
+
+;;Cette fonction permet à l'ordinateur de construire un code 
+;;tabc est le tableau contenant les valeurs possible que le device peut choisir
+;;indic est le tableau des indications
+(defn buildCode [taille cs indic tab]
+	(loop [i 0
+		color (tabColor cs indic)
+		res []]
+		(println "Je suis passée par la" color)
+		;;Si c'est inferieur au code donné par le player, on continue a remplir le vecteur réponse
+		(if (< i taille)
+			;;si cs et indic sont non vides, cela signifie qu'on n'est pas à la premiere combinaison de code qu'on tape  
+			(if (and (seq cs) (seq indic))
+				(if (= (compare (get indic i) :good) 0)
+					(recur (inc i) color (conj res (get cs i)))
+					(if (seq color)
+						;;Sinon l'indication est un bad, on vérifie donc si on peut récupérer des valeurs provenant du tableau des colours mal placés
+						(do 
+							(let [c (rand-nth color)]
+								(recur (inc i) (removeColor color c) (conj res c))))
+						(recur (inc i) color (conj res (rand-nth tab)))))
+					;;Sinon c'est la premiere combinaison et on remplit le vecteur code avec les valeurs de tab
+				(recur (inc i) color (conj res (rand-nth tab))))
+			res)))
+
+
+
+
+;;Cette fonction construit le vecteur contenant les couleurs qui ne sont pas à la bonne place 
+(defn tabColor [code indic]
+	(loop [i 0
+		res []]
+		(if (< i (count code))
+			(if (= (compare (get indic i) :color) 0)
+				(recur (inc i) (conj res (get code i)))
+				(recur (inc i) res))
+			res)))
+
+
+(defn removeColor [v c]
+	(loop [i 0
+		res []]
+		(if (< i (count v))
+			(if (not= (compare (get v i) c) 0)
+				;;Si les couleurs ne correspondent pas à c
+				(recur (inc i) (conj res (get v i)))
+				(recur (inc i) res))
+			res)))
+
+
+
+
+;;Cette fonction permet de convertir les mots clés en String (optionnelles)
+;(defn convertirString [v]
+;	(loop [tmp v
+;		res []]
+;		(if (seq tmp)
+;			(recur (rest tmp) (conj res (name (first tmp))))
+;			res)))
+;;****************************************************************************************
+;;Fonctions permettant de faire une partie contre l'ordinateur
+
+
 ;;Fonction permettant de gerer le jeu : lancement et arrêt du jeu
-(defn lancer-jeu []
+(defn vs-device []
   (println "Perfect! Will you be the next mastermind?")
   ;;On initialise le code secret ainsi que le nombre de tentatives
 
@@ -60,6 +265,10 @@
           (do (println "Too bad, you used up all your tries ! Try again ? ") (println "1 : Yes, do not want to give up !") (println "2 : No, need a break") (restart)))))))
 
 
+
+;;****************************************************************************************
+
+
 ;;Fonction permettant de savoir combien de tentatives le joueur souhaite
 (defn valeur-tenta [n]
   (cond
@@ -74,7 +283,7 @@
 (defn restart []
   (let [res (read-line)]
     (if (= (compare res "1") 0)
-      (lancer-jeu)
+      (vs-device)
       (println "Too bad, it was fun ! See you later !"))))
 
 
